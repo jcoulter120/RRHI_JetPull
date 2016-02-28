@@ -104,8 +104,8 @@ TVector3 Norm(TVector3 v){
 
 //BEGIN MAIN MACRO =====================================================
 void jetPull_Pythia(Int_t startfile = 0,
-		   Int_t endfile = 1,
-		   Int_t jobNumber = 60,
+		   Int_t endfile = 22,
+		   Int_t jobNumber = 100,
 		   int radius = 3,
 		   float ptCutLead = 60.0,
 		   float ptCut = 30.0,
@@ -144,7 +144,7 @@ void jetPull_Pythia(Int_t startfile = 0,
   TH1F * h_etaParticle = new TH1F("etaParticle", "", 60, -3, 3);
   TH1F * h_yParticle = new TH1F("yParticle", "", 60, -3, 3);
   TH2F * h_jetPull_2d = new TH2F("jetPull_2d","Jet pT vs Eta for pT>20",30,-3,+3,60,-3.5,3.5);
-  TH3F * h_jetPull_3d = new TH3F("jetPull_3d","phi vs y vs pT" ,30,-3,+3,60,-3.5,3.5,60,0.01,500);
+  TH2D * h_jetPull_3d = new TH2D("jetPull_3d","phi vs y vs pT" ,30,-3,+3,60,-3.5,3.5);
   //TH1F * pTCutoffs = new TH1F("pTcutoffs", "Jet Pull Angle -- with pThat Cutoffs", 60, 0.01, 500);
   //TH1F * pullAngle = new TH1F("pullAngle", "Jet Pull Angle vs pT", 60, -3.5, 3.5); 
 
@@ -367,8 +367,9 @@ void jetPull_Pythia(Int_t startfile = 0,
 
 	if(jetPullMag != 0){
 	  h_jetPull->Fill(jetPullMag, pThat_weight);
-	  h_jetPull_2d->Fill(jetPull.X(), jetPull.Y(), pThat_weight);
-	  h_jetPull_3d->Fill(jetPull.X(), jetPull.Y(), pt[njet], pThat_weight);
+	  h_jetPull_2d->Fill(jetPull.X(), jetPull.Y());
+	  Double_t weightNum = pt[njet]*pThat_weight;
+	  h_jetPull_3d->Fill(jetPull.X(), jetPull.Y(), pt[njet]);
 	}
       }//end jet loop =======================
       
@@ -408,7 +409,7 @@ void jetPull_Pythia(Int_t startfile = 0,
   }//end file loop
   
   //SCALE HISTOGRAMS +++++++++++++++++++++++++++++++++++
-  h_jetPull->Scale(1./h_jetPull->Integral());
+  //h_jetPull->Scale(1./h_jetPull->Integral());
   h_thrust->Scale(1./h_thrust->Integral());
   h_maj->Scale(1./h_maj->Integral());
   h_min->Scale(1./h_min->Integral());

@@ -57,7 +57,7 @@ void jetPull_draw(){
   TH2F * h_jetPull_2d = (TH2F*)fin->Get("jetPull_2d");
   TH1F * h_unweighted = (TH1F*)fin->Get("unweighted");
   TH1F * h_weighted = (TH1F*)fin->Get("weighted");
-  TH3F * h_jetPull_3d = (TH3F*)fin->Get("jetPull_3d");
+  TH2F * h_jetPull_3d = (TH2F*)fin->Get("jetPull_3d");
   TH1F * h_eta = (TH1F*)fin->Get("etaParticle");
   TH1F * h_y = (TH1F*)fin->Get("yParticle");
     
@@ -90,7 +90,8 @@ void jetPull_draw(){
   h_jetPull_2d->Draw("colz");
 
   canvas->cd(3)->SetLogy();
-  h_unweighted->SetXTitle("Unweighted PThat");
+  h_unweighted->SetTitle("Unweighted PThat");
+  h_unweighted->SetXTitle("PThat");
   h_unweighted->SetYTitle("Counts");
   h_unweighted->SetAxisRange(1,1200,"X");
   h_unweighted->GetXaxis()->CenterTitle();
@@ -98,7 +99,8 @@ void jetPull_draw(){
   h_unweighted->Draw();
   
   canvas->cd(4)->SetLogy();
-  h_weighted->SetXTitle("Weighted PThat");
+  h_weighted->SetXTitle("PThat");
+  h_weighted->SetTitle("Weighted PThat");
   h_weighted->SetYTitle("Counts");
   h_weighted->SetAxisRange(1,1200,"X");
   h_weighted->GetXaxis()->CenterTitle();
@@ -106,34 +108,39 @@ void jetPull_draw(){
   h_weighted->Draw();
 
   canvas->cd(5);
-  h_jetPull_3d->SetTitle("JetPull"); 
+  h_jetPull_3d->SetTitle("JetPull vs. pT"); 
   h_jetPull_3d->SetXTitle("y");
   h_jetPull_3d->SetYTitle("phi");
   h_jetPull_3d->SetZTitle("pT");
-  h_jetPull_3d->SetAxisRange(-100.5,100.5,"X");
-  h_jetPull_3d->SetAxisRange(-100.5,100.5,"Y");
-  h_jetPull_3d->SetAxisRange(-100.5,100.5,"Z");
+  h_jetPull_3d->SetAxisRange(-3.5,3.5,"X");
+  h_jetPull_3d->SetAxisRange(-3.5,3.5,"Y");
+  h_jetPull_3d->SetAxisRange(0.00000001,1000000,"Z");
   h_jetPull_3d->GetXaxis()->CenterTitle();
   h_jetPull_3d->GetYaxis()->CenterTitle();
   h_jetPull_3d->GetZaxis()->CenterTitle();
-  h_jetPull_3d->Draw("LEGO1");
+  h_jetPull_3d->Draw("LEGO3");
+  
+  canvas->cd(6);
+  h_jetPull_3d->SetTitle("JetPull vs pT"); 
+  h_jetPull_3d->Draw("psrlego2");
+  h_jetPull_3d->SetAxisRange(0.1,10000,"Z");
   
 
-  canvas->cd(6)->SetLogy();
+  /*
   h_eta->SetXTitle("Pseduorapidity, Rapidity");
   h_eta->SetYTitle("Counts");
-  h_eta->SetAxisRange(1,1200,"X");
+  h_eta->SetAxisRange(-3.5,3.5,"X");
   h_eta->GetXaxis()->CenterTitle();
   h_eta->GetYaxis()->CenterTitle();
   h_eta->SetMarkerColor(3);
-  TLegend * a = new TLegend(0.2,.70,.4,.85);
+  TLegend * a = new TLegend(0.7,.70,.9,.85);
   a->AddEntry(h_eta, "pseudorapidity", "p");
   
   a->AddEntry(h_y, "rapidity", "p");
   h_eta->Draw();
   h_y->Draw("same");
   a->Draw("same");
-  
+			   */
   canvas->Print(Form("test_pp_jetPull_%d.pdf", jobNum)); 
 
 }//end of plot thrust
