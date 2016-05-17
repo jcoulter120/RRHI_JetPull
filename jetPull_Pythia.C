@@ -175,7 +175,6 @@ void jetPull_Pythia(Int_t startfile = 0,
 
     //define trees and file +++++++++++++++++
     t = (TTree*)file->Get(Form("ak%dPFJetAnalyzer/t", radius));
-    return;
     hiEvt = (TTree*)file->Get("hiEvtAnalyzer/HiTree");
     skim = (TTree*)file->Get("skimanalysis/HltTree");
     weight = (TTree*)weight_file->Get("weights");
@@ -279,12 +278,16 @@ void jetPull_Pythia(Int_t startfile = 0,
       
       r[leadJet].Set(0.0,0.0);
       jetPull.Set(0.0,0.0);
-      if(debug) cout << "NEW JET: "<<  ngen << " *******************************" << endl;
+      if(debug) cout << "NEW JET: "<<  NJets_Sel << " *******************************" << endl;
       
       //PARTICLE LOOP STARTS HERE ===================================
       //calculate jet pull for the individual jet
-      for(Long64_t npart = 0; npart < ngen; ++npart){
-	
+      for(Long64_t npart = 0; npart < NJets_Selected; ++npart){
+
+	//check to make sure we don't hit the lead jet twice
+	if(npart == leadJet) {
+	  continue;
+	}
 	//these files seem to have a lot of gen particles with pt = 0
 	//if ( genpt[npart] == 0) {
 	//  continue; 
@@ -295,12 +298,12 @@ void jetPull_Pythia(Int_t startfile = 0,
 	  //	}
 	
 	//Delta R^2 cut
-	if((Double_t)(TMath::Power(TMath::Power(phi_v[leadJet] - genphi[npart],2) + TMath::Power(eta_v[leadJet] - geneta[npart],2),2)) > 0.3){
+	if((Double_t)(TMath::Power(TMath::Power(phi_v[leadJet] - phi_v[npart],2) + TMath::Power(eta_v[leadJet] - eta_v[npart],2),2)) > 0.3){
 	  continue;
 	}
 	
 	//calculate jet pull
-	TVector2 partAxis = TVector2(geneta[npart], genphi[npart]);
+	TVector2 partAxis = TVector2(eta_v[npart], phi_v[npart]);
 	TVector2 jetAxis = TVector2(eta_v[leadJet], phi_v[leadJet]);
 	TVector2 newJetPull; 
 	r[leadJet].Set((partAxis.X() - jetAxis.X()),(partAxis.Y() - jetAxis.Y()));
@@ -308,14 +311,14 @@ void jetPull_Pythia(Int_t startfile = 0,
 	
 	if(debug) cout << "NEW PART: Lead Jet pT " << pt_v[leadJet] << " Particle pT " << genpt[npart] << " ======> Lead Jet-->Subjet ri" <<  TMath::Sqrt(r[leadJet].X()*r[leadJet].X() + r[leadJet].Y()*r[leadJet].Y()) << endl;
 	
-	jetPullMag = TMath::Sqrt(r[leadJet].X()*r[leadJet].X() + r[leadJet].Y()*r[leadJet].Y()) * genpt[npart]/pt_v[leadJet];
+	jetPullMag = TMath::Sqrt(r[leadJet].X()*r[leadJet].X() + r[leadJet].Y()*r[leadJet].Y()) * pt_v[npart]/pt_v[leadJet];
 	if(debug) cout << "JET PULL MAG: " << jetPullMag << endl;
 	newJetPull.Set(jetPullMag*r[leadJet].X(), jetPullMag*r[leadJet].Y());
 	jetPull.Set(jetPull.X() + newJetPull.X(), jetPull.Y() + newJetPull.Y());
  	if(debug) cout << "JET PULL MAG w/ NEW PARTICLE: " << jetPullMag << endl;
 	
-	h_yParticle->Fill(geneta[npart], pThat_weight);
-	h_etaParticle->Fill(geneta[npart], pThat_weight);
+	//h_yParticle->Fill(geneta[npart], pThat_weight);
+	//h_etaParticle->Fill(geneta[npart], pThat_weight);
 	
       }//PARTICLE LOOP ENDS HERE ===========
       
@@ -357,7 +360,6 @@ void jetPull_Pythia(Int_t startfile = 0,
 	if(debug) cout << "pt_leadJet " << pt_v[leadJet] << " pt_mainJet " << pt_v[npull] << " Pull Angle: " << pullAngle << "\n arccos inside " << (jetPull.X()*rpull.X() + jetPull.Y()*rpull.Y()) << " / " << (TMath::Sqrt(jetPull.X()*jetPull.X() + jetPull.Y()*jetPull.Y()) * TMath::Sqrt(rpull.X()*rpull.X() + rpull.Y()*rpull.Y())) <<  endl;
 	
 	//fill pull angle and eta difference (for checking)
-
 	h_pullAngle->Fill(pullAngle, pThat_weight);
 	h_leadingJeteta->Fill(eta_v[leadJet] - eta_v[npull]);      
       } // END OF PULL ANGLE LOOP ===============================
